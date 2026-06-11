@@ -4,14 +4,13 @@ import random
 from classes.navio import Ship
 from classes.tabuleiro import Board
 
-# ── tentativa de importar menu (opcional) ──────────────────────────────────
+
 try:
     from menu import run_menu
     HAS_MENU = True
 except ImportError:
     HAS_MENU = False
 
-# ── constantes de layout ───────────────────────────────────────────────────
 GRID_SIZE = 10
 CELL_SIZE = 50
 MARGIN = 2
@@ -21,7 +20,6 @@ SIDE_W = 120
 WIDTH = GRID_SIZE * CELL_SIZE + SIDE_W
 HEIGHT = GRID_SIZE * CELL_SIZE + UI_HEIGHT
 
-# ── paleta: tons de guerra / terreno ──────────────────────────────────────
 TERRAIN_DARK = (30,  45,  20)
 TERRAIN_MID = (50,  70,  30)
 TERRAIN_LIGHT = (75, 100,  45)
@@ -56,12 +54,10 @@ font_mid = pygame.font.SysFont("consolas", 24, bold=True)
 font_small = pygame.font.SysFont("consolas", 16)
 font_tiny = pygame.font.SysFont("consolas", 13)
 
-# ── estado global ──────────────────────────────────────────────────────────
 board_p1 = Board()
 board_p2 = Board()
 
-#  tamanhos dos alvos militares (um de cada)
-fleet = [5, 4, 3, 2, 1]
+fleet = [1, 2, 3, 4, 5]
 setup_index = 0
 setup_rotation = "H"
 current_player = 1
@@ -190,7 +186,6 @@ def cell_rect(col, row):
 
 
 def draw_board_terrain(board, t, reveal_targets=False):
-    """Desenha o mapa de ataque com terreno animado."""
     for row in range(GRID_SIZE):
         for col in range(GRID_SIZE):
             rect = cell_rect(col, row)
@@ -254,7 +249,6 @@ def draw_setup_board(board, t):
         _blit_target(ship)
 
 
-# ── desenho vetorial dos alvos ─────────────────────────────────────────────
 def _draw_target_vector(surf, x, y, size, is_h, color_body, color_dark,
                         target_size, alpha=255):
     """
@@ -265,29 +259,11 @@ def _draw_target_vector(surf, x, y, size, is_h, color_body, color_dark,
     H = CELL_SIZE - MARGIN
     s = pygame.Surface((W, H), pygame.SRCALPHA)
 
-    # ── fundo base (camuflagem) ──────────────────────────────────────────
     pygame.draw.rect(s, (*color_body, alpha), (0, 0, W, H), border_radius=3)
 
-    # ── padrão camo (manchas) ────────────────────────────────────────────
-    for i in range(size * 2 + 2):
-        cx2 = random.randint(4, W - 4)   # decorativo (fixo no frame)
-        cy2 = random.randint(4, H - 4)
-        r2 = random.randint(4, 10)
-        patch = pygame.Surface((r2 * 2, r2 * 2), pygame.SRCALPHA)
-        pygame.draw.circle(patch, (*color_dark, min(alpha, 160)),
-                           (r2, r2), r2)
-        s.blit(patch, (cx2 - r2, cy2 - r2))
-    # Re-seed para manter estático entre frames
     random.seed(target_size * 100 + x + y)
-    for i in range(size * 2 + 2):
-        cx2 = random.randint(4, W - 4)
-        cy2 = random.randint(4, H - 4)
-        r2 = random.randint(4, 10)
-        patch = pygame.Surface((r2 * 2, r2 * 2), pygame.SRCALPHA)
-        pygame.draw.circle(patch, (*color_dark, min(alpha, 160)),
-                           (r2, r2), r2)
-        s.blit(patch, (cx2 - r2, cy2 - r2))
-    random.seed()  # reset seed
+
+    random.seed()
 
     pad = 5
     inner_h = H - pad * 2
